@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Fitness Plan – FitForge</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .workout {
+      margin-top: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .exercise {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    #timer {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      color: #00ffcc;
+    }
+
+    .controls button {
+      margin: 0.3rem;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background: #444;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Your Time-Based Plan is Ready, <span id="username"></span> 💪</h2>
+
+    <div class="workout">
+      <div class="exercise" id="current-exercise">Loading...</div>
+      <img id="exercise-img" src="" alt="Exercise Image" style="width:100%;max-width:500px;margin-bottom:1rem;"><div id="timer">00:00</div>
+      <div class="controls">
+        <button onclick="startWorkout()">▶️ Start</button>
+        <button onclick="pauseWorkout()">⏸️ Pause</button>
+        <button onclick="resetWorkout()">🔄 Reset</button>
+      </div>
+    </div>
+
+    <ul id="workout-list"></ul>
+  </div>
+  <button onclick="window.location.href='index.html'">🏠 Return to Homepage</button>
+
+  <script>
+    const name = localStorage.getItem("name");
+    const plan = JSON.parse(localStorage.getItem("plan")) || [];
+    const intervals = JSON.parse(localStorage.getItem("intervals")) || [];
+
+    document.getElementById("username").textContent = name;
+    const list = document.getElementById("workout-list");
+    plan.forEach((move, index) => {
+      const item = document.createElement("li");
+      item.textContent = `${move} – ${intervals[index]} sec`;
+      list.appendChild(item);
+    });
+
+    let currentIndex = 0;
+    let currentTime = 0;
+    let timerInterval;
+
+    const exerciseDisplay = document.getElementById("current-exercise");
+    const timerDisplay = document.getElementById("timer");
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(currentTime / 60);
+      const secs = currentTime % 60;
+      timerDisplay.textContent = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+
+    function startWorkout() {
+      if (currentIndex >= plan.length) return;
+      if (!timerInterval) {
+        exerciseDisplay.textContent = plan[currentIndex]; updateExerciseImage(plan[currentIndex]);
+        currentTime = intervals[currentIndex];
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+          currentTime--;
+          updateTimerDisplay();
+          if (currentTime <= 0) {
+            currentIndex++;
+            if (currentIndex >= plan.length) {
+              clearInterval(timerInterval);
+              exerciseDisplay.textContent = "✅ Workout Complete!";
+              timerDisplay.textContent = "00:00";
+              return;
+            }
+            exerciseDisplay.textContent = plan[currentIndex]; updateExerciseImage(plan[currentIndex]);
+            currentTime = intervals[currentIndex];
+          }
+        }, 1000);
+      }
+    }
+
+    function pauseWorkout() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetWorkout() {
+      pauseWorkout();
+      currentIndex = 0;
+      currentTime = 0;
+      exerciseDisplay.textContent = "Press ▶️ Start";
+      updateTimerDisplay();
+    }
+
+    resetWorkout();
+    </script>
+  <script src="update_image.js"></script>
+</body>
+</html>

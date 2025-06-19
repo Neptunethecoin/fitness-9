@@ -1,0 +1,15 @@
+{
+  "name": "FitForge",
+  "short_name": "FitForge",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#4caf50",
+  "icons": [
+    {
+      "src": "assets/coach_luna.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

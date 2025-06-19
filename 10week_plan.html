@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.json">
+<script>
+function updateDurations() {
+  localStorage.setItem('durationChoice', document.getElementById('duration-select').value);
+  location.reload();
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
+  <meta charset="UTF-8" />
+  <title>FitForge 10-Week Program</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .week-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .day-button {
+      margin: 0.5rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 10px;
+      border: none;
+      background-color: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .day-button:hover {
+      background-color: #00c9aa;
+    }
+    .workout-display {
+      margin-top: 2rem;
+    }
+    .exercise {
+      font-size: 1.4rem;
+      margin: 0.3rem 0;
+    }
+    #timer {
+      font-size: 2rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+<div style="width: 100%; background: #ddd; height: 20px; margin-bottom: 20px;">
+  <div id="progress-bar" style="height: 100%; background: #4caf50; width: 0%; transition: width 0.5s;"></div>
+</div>
+
+
+<h2>🏋️ Full 10-Week Workout Schedule</h2>
+<button onclick="localStorage.removeItem('doneDays'); location.reload();" style="margin-bottom: 10px;">🔄 Reset Progress</button>
+
+<div id="full-schedule" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px;"></div>
+
+<style>
+  #full-schedule button.complete {
+    background-color: #4caf50;
+    color: white;
+  }
+</style>
+
+<script>
+function updateDurations() {
+  localStorage.setItem('durationChoice', document.getElementById('duration-select').value);
+  location.reload();
+}
+
+function updateProgressBar() {
+  const doneDays = JSON.parse(localStorage.getItem("doneDays") || "[]");
+  const percent = Math.round((doneDays.length / 50) * 100);
+  document.getElementById("progress-bar").style.width = percent + "%";
+}
+window.onload = updateProgressBar;
+
+function checkDayComplete(index) {
+  const doneDays = JSON.parse(localStorage.getItem("doneDays") || "[]");
+  return doneDays.includes(index);
+}
+function markDayComplete(index) {
+  let doneDays = JSON.parse(localStorage.getItem("doneDays") || "[]");
+  if (!doneDays.includes(index)) {
+    doneDays.push(index);
+    localStorage.setItem("doneDays", JSON.stringify(doneDays));
+  }
+}
+
+const scheduleGrid = document.getElementById("full-schedule");
+for (let w = 0; w < 10; w++) {
+  for (let d = 0; d < 5; d++) {
+    const dayNum = w * 5 + d + 1;
+    const btn = document.createElement("button");
+    
+const label = "Week " + (w + 1) + " - Day " + (d + 1);
+btn.innerText = checkDayComplete(dayNum - 1) ? "✅ " + label : label;
+
+    btn.style.padding = "8px";
+    btn.style.cursor = "pointer";
+    btn.onclick = () => {
+      localStorage.setItem("lastDayIndex", dayNum - 1);
+      location.reload();
+    };
+    scheduleGrid.appendChild(btn);
+  }
+}
+</script>
+
+  <div class="container">
+    <h2>Select Your Workout Day 💪</h2>
+    <div class="week-container" id="days-grid"></div>
+
+    <div class="workout-display">
+      <h3 id="day-title">Workout Plan</h3>
+      <div id="exercises"></div>
+      <video id="exercise-video" width="100%" height="280" controls muted autoplay loop style="object-fit: contain;">
+  <source src="" type="video/mp4">
+</video>
+<img id="exercise-img"  src="" style="width:100%; max-width:500px; margin:1rem auto; display:block;" />
+      <div id="timer">00:00</div>
+      <div>
+        <button onclick="startWorkout()">▶️ Start</button>
+        <button onclick="pauseWorkout()">⏸️ Pause</button>
+        <button onclick="resetWorkout()">🔄 Reset</button>
+      </div>
+    </div>
+  </div>
+
+  
+<style>
+  #full-schedule button.complete {
+    background-color: #4caf50;
+    color: white;
+  }
+</style>
+
+<script>
+function updateDurations() {
+  localStorage.setItem('durationChoice', document.getElementById('duration-select').value);
+  location.reload();
+}
+
+function updateProgressBar() {
+  const doneDays = JSON.parse(localStorage.getItem("doneDays") || "[]");
+  const percent = Math.round((doneDays.length / 50) * 100);
+  document.getElementById("progress-bar").style.width = percent + "%";
+}
+window.onload = updateProgressBar;
+
+function checkDayComplete(index) {
+  const doneDays = JSON.parse(localStorage.getItem("doneDays") || "[]");
+  return doneDays.includes(index);
+}
+function markDayComplete(index) {
+  let doneDays = JSON.parse(localStorage.getItem("doneDays") || "[]");
+  if (!doneDays.includes(index)) {
+    doneDays.push(index);
+    localStorage.setItem("doneDays", JSON.stringify(doneDays));
+  }
+}
+
+    const allWorkouts = [];
+    const exercisePool = ["Jumping Jacks", "Push-Ups", "Lunges", "Plank", "Squats", "Mountain Climbers", "High Knees"];
+    const timerDisplay = document.getElementById("timer");
+    const exerciseImg = document.getElementById("exercise-img");
+
+    for (let i = 0; i < 50; i++) {
+      const plan = [];
+      const intervals = [];
+      for (let j = 0; j < 5; j++) {
+        const move = exercisePool[Math.floor(Math.random() * exercisePool.length)];
+        
+let selectedDuration = parseInt(localStorage.getItem('durationChoice') || 45); parseInt(document.getElementById('duration-select')?.value || 45);
+for (let r = 0; r < 3; r++) {
+
+          plan.push(move);
+          intervals.push(45);
+          plan.push("Rest");
+          intervals.push(30);
+        }
+      }
+      allWorkouts.push({ plan, intervals });
+    }
+
+    const grid = document.getElementById("days-grid");
+    for (let i = 1; i <= 50; i++) {
+      const btn = document.createElement("button");
+      btn.className = "day-button";
+      btn.textContent = `Day ${i}`;
+      btn.onclick = () => { loadDay(i - 1); localStorage.setItem("lastDayIndex", i - 1); };
+      grid.appendChild(btn);
+    }
+
+    let currentIndex = 0;
+    let currentTime = 0;
+    let timerInterval = null;
+    let workout = [];
+    let intervals = [];
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(currentTime / 60);
+      const secs = currentTime % 60;
+      timerDisplay.textContent = \`\${mins.toString().padStart(2, "0")}:\${secs.toString().padStart(2, "0")}\`;
+    }
+
+    function loadDay(index) {
+      const data = allWorkouts[index];
+      workout = data.plan;
+      intervals = data.intervals;
+      currentIndex = 0;
+      currentTime = 0;
+
+      document.getElementById("day-title").textContent = \`Workout Plan – Day \${index + 1}\`;
+      const list = document.getElementById("exercises");
+      list.innerHTML = "";
+      workout.forEach((move, i) => {
+        const item = document.createElement("div");
+        item.className = "exercise";
+        item.textContent = \`\${i + 1}. \${move} – \${intervals[i]} sec\`;
+        list.appendChild(item);
+      });
+      updateTimerDisplay();
+      updateExerciseImage(workout[0]);
+    }
+
+    function updateExerciseImage(name) {
+      const lower = name.toLowerCase().replace(/ /g, "_");
+      const categories = {
+        "cardio": ["jumping jacks", "mountain climbers", "high knees"],
+        "strength": ["push-ups", "squats", "lunges"],
+        "stretch": ["plank"]
+      };
+      let category = "cardio";
+      for (const [cat, list] of Object.entries(categories)) {
+        if (list.includes(lower)) category = cat;
+      }
+      exerciseImg.src = \`workouts/\${category}/\${lower}.gif\`;
+    }
+
+    function startWorkout() {
+      if (!workout.length) return;
+      if (!timerInterval) {
+        updateExerciseImage(workout[currentIndex]);
+        currentTime = intervals[currentIndex];
+        updateTimerDisplay();
+        timerInterval = setInterval(() => {
+          currentTime--;
+          updateTimerDisplay();
+          if (currentTime <= 0) {
+            currentIndex++;
+            if (currentIndex >= workout.length) {
+              clearInterval(timerInterval);
+              exerciseImg.src = "";
+              timerDisplay.textContent = "✅ Complete!";
+              return;
+            }
+            updateExerciseImage(workout[currentIndex]);
+            currentTime = intervals[currentIndex];
+          }
+        }, 1000);
+      }
+    }
+
+    function pauseWorkout() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetWorkout() {
+      pauseWorkout();
+      currentIndex = 0;
+      currentTime = 0;
+      timerDisplay.textContent = "00:00";
+      exerciseImg.src = "";
+    }
+
+    
+    // Load last visited day or default to day 1
+    const savedDayIndex = parseInt(localStorage.getItem("lastDayIndex") || "0");
+    loadDay(savedDayIndex);
+
+    loadDay(0);
+  </script>
+</body>
+</html>
